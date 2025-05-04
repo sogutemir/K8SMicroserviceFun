@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-script
+  labels:
+    app: postgres
+    component: database
+data:
+  init.sql: |
+    CREATE DATABASE taskdb;
+    GRANT ALL PRIVILEGES ON DATABASE taskdb TO postgres;

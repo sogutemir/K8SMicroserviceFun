@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+  labels:
+    app: user-service
+    component: backend
+data:
+  application.properties: |
+    server.port=8080
+
+    spring.datasource.url=jdbc:postgresql://postgres:5432/userdb
+    spring.datasource.driverClassName=org.postgresql.Driver
+
+    spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+    spring.jpa.hibernate.ddl-auto=update
+    spring.jpa.show-sql=true
+
+    spring.application.name=user-service
+
+    # Actuator Configuration
+    management.endpoints.web.exposure.include=health,info,metrics,loggers
+    management.endpoint.health.show-details=always
+    management.health.db.enabled=true
+    management.health.diskspace.enabled=true
