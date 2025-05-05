@@ -5,11 +5,13 @@ echo "=== Testing Kubernetes Microservices ==="
 # Kurulum test scripti için ortam değişkenleri
 USER_SERVICE_IP=$(kubectl get service user-service -o jsonpath='{.spec.clusterIP}')
 TASK_SERVICE_IP=$(kubectl get service task-service -o jsonpath='{.spec.clusterIP}')
+REPORTING_SERVICE_IP=$(kubectl get service reporting-service -o jsonpath='{.spec.clusterIP}')
 
 echo ""
 echo "Service IPs:"
 echo "User Service: $USER_SERVICE_IP"
 echo "Task Service: $TASK_SERVICE_IP"
+echo "Reporting Service: $REPORTING_SERVICE_IP"
 echo ""
 
 # Port forward (local test için)
@@ -19,6 +21,9 @@ USER_PID=$!
 sleep 2
 kubectl port-forward service/task-service 8081:8081 &
 TASK_PID=$!
+sleep 2
+kubectl port-forward service/reporting-service 8083:8083 &
+REPORTING_PID=$!
 sleep 2
 
 echo ""
@@ -58,11 +63,25 @@ echo ""
 echo "5. Get tasks by user ID"
 curl -s http://localhost:8081/api/tasks/user/$USER_ID | jq '.'
 
+# Test reporting-service
+echo -e "\n\n===== Testing Reporting Service ====="
+echo "Getting all reports:"
+curl -s -X GET http://localhost:8083/api/reports | jq
+
+echo "Creating a report:"
+curl -s -X POST -H "Content-Type: application/json" -d "{\"name\":\"User Activity Report\",\"description\":\"Report on user activity\",\"userId\":$USER_ID,\"type\":\"USER_PRODUCTIVITY\"}" http://localhost:8083/api/reports | jq
+
+echo "Getting reports for a user:"
+curl -s -X GET http://localhost:8083/api/reports/user/$USER_ID | jq
+
+echo "Getting report by type:"
+curl -s -X GET http://localhost:8083/api/reports/type/USER_PRODUCTIVITY | jq
+
 echo ""
 echo "=== Cleaning up ==="
 echo "Stopping port forwarding..."
 kill $USER_PID
 kill $TASK_PID
+kill $REPORTING_PID
 
-echo ""
-echo "Test completed!" 
+echo -e "\n\nAll tests completed successfully!" 

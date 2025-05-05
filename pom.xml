@@ -31,6 +31,7 @@
     <modules>
         <module>user-service</module>
         <module>task-service</module>
+        <module>reporting-service</module>
     </modules>
     
     <properties>
